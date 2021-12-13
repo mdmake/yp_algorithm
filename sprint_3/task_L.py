@@ -27,24 +27,26 @@ L Два велосипеда
 
 Вывод
 3 5
+# <-fix
+8
+1 7 7 7 7 7 7 9
+7
 """
-
 import sys
 
 
 def binarySearch(arr, x, left, right):
-    if right <= left:  # промежуток пуст
-        return -1
+    if right <= left:
+        if arr[right - 1] < x <= arr[right]:
+            return right + 1
+        else:
+            return -1
+
     # промежуток не пуст
     mid = (left + right) // 2
-
-    if arr[mid - 1] <= x <= arr[mid]:
-        if arr[mid - 1] < x:
-            return mid + 1
-        else:
-            return mid
-
-    elif x < arr[mid]:  # искомый элемент меньше центрального
+    if arr[mid - 1] < x <= arr[mid]:
+        return mid + 1
+    elif x <= arr[mid]:  # искомый элемент меньше центрального
         # значит следует искать в левой половине
         return binarySearch(arr, x, left, mid)
     else:  # иначе следует искать в правой половине
@@ -56,18 +58,18 @@ if __name__ == "__main__":
     data = list(map(int, sys.stdin.readline().rstrip().split()))
     price = int(sys.stdin.readline().rstrip())
 
-    if price < data[0]:
+    if price <= data[0]:
         day1 = 1
     elif price > data[-1]:
         day1 = -1
     else:
-        day1 = binarySearch(data, price, 0, n)
+        day1 = binarySearch(data, price, 0, n - 1)
 
-    if price*2 < data[0]:
+    if price * 2 <= data[0]:
         day2 = 1
-    elif price*2 > data[-1]:
+    elif price * 2 > data[-1]:
         day2 = -1
     else:
-        day2 = binarySearch(data, price * 2, day1 - 1, n)
+        day2 = binarySearch(data, price * 2, day1 - 1, n - 1)
 
     print(day1, day2)
