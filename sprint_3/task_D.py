@@ -1,6 +1,5 @@
 import sys
-from collections import defaultdict
-
+from random import randint
 '''
 10
 8 5 5 8 6 9 8 2 4 7
@@ -10,23 +9,41 @@ from collections import defaultdict
 5
 '''
 
+def partition(array, pivot):
 
-def calcSortNum(data):
-    k = defaultdict(int)
-    for number in data:
-        k[number] += 1
+    left = []
+    center = []
+    right = []
 
-    return k
+    for item in array:
+        if item < pivot:
+            right.append(item)
+        elif item == pivot:
+            center.append(item)
+        else:
+            left.append(item)
+
+    return left, center, right
+
+
+def quicksortReverse(array):
+    if len(array) < 2:  # базовый случай,
+        return array       # массивы с 0 или 1 элементами фактически отсортированы
+    else:  # рекурсивный случай
+        pivot = array[randint(0, len(array)-1)]
+        left, center, right = partition(array, pivot)
+        return quicksortReverse(left) + center + quicksortReverse(right)
 
 
 if __name__ == '__main__':
     n = int(sys.stdin.readline().rstrip())
     children = [int(item) for item in sys.stdin.readline().rstrip().split()]
     m = int(sys.stdin.readline().rstrip())
-    cookies =  [int(item) for item in sys.stdin.readline().rstrip().split()]
+    cookies = [int(item) for item in sys.stdin.readline().rstrip().split()]
 
-    children.sort(reverse=True)
-    cookies.sort(reverse=True)
+    children = quicksortReverse(children)
+    cookies = quicksortReverse(cookies)
+
     i = 0
     j = 0
     while i < n and j < m:
@@ -36,4 +53,3 @@ if __name__ == '__main__':
             i += 1
             j += 1
     print(j)
-
