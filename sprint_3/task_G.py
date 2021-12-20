@@ -39,7 +39,7 @@ def calcSort(data: list[str]) -> list[int]:
 	return result
 
 
-def calcSortNum(data: list[str]) -> list[int]:
+def calcSortNum(data: list[int]) -> list[int]:
 	k = [0] * 3
 	for number in data:
 		k[number] += 1
