@@ -1,5 +1,5 @@
 import sys
-from random import randint
+
 '''
 10
 8 5 5 8 6 9 8 2 4 7
@@ -9,40 +9,29 @@ from random import randint
 5
 '''
 
-def partition(array, pivot):
 
-    left = []
-    center = []
-    right = []
+def countingSort(array):
+    counted_values = [0] * (max(array)+1)
+    for value in array:
+        counted_values[value] += 1
 
-    for item in array:
-        if item < pivot:
-            right.append(item)
-        elif item == pivot:
-            center.append(item)
-        else:
-            left.append(item)
+    index = len(array)-1
+    for value in range(0, len(counted_values)):
+        for amount in range(1, counted_values[value]+1):
+            array[index] = value
+            index -= 1
 
-    return left, center, right
+    return array
 
 
-def quicksortReverse(array):
-    if len(array) < 2:  # базовый случай,
-        return array       # массивы с 0 или 1 элементами фактически отсортированы
-    else:  # рекурсивный случай
-        pivot = array[randint(0, len(array)-1)]
-        left, center, right = partition(array, pivot)
-        return quicksortReverse(left) + center + quicksortReverse(right)
-
-
-if __name__ == '__main__':
+def main():
     n = int(sys.stdin.readline().rstrip())
-    children = [int(item) for item in sys.stdin.readline().rstrip().split()]
+    children = list(map(int, sys.stdin.readline().rstrip().split()))
     m = int(sys.stdin.readline().rstrip())
-    cookies = [int(item) for item in sys.stdin.readline().rstrip().split()]
+    cookies = list(map(int, sys.stdin.readline().rstrip().split()))
 
-    children = quicksortReverse(children)
-    cookies = quicksortReverse(cookies)
+    children = countingSort(children)
+    cookies = countingSort(cookies)
 
     i = 0
     j = 0
@@ -53,3 +42,7 @@ if __name__ == '__main__':
             i += 1
             j += 1
     print(j)
+
+
+if __name__ == '__main__':
+    main()
