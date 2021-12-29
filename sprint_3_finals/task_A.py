@@ -1,30 +1,23 @@
 def binary_search(arr, x, left, right):
-    if right <= left:
-        if arr[right] == x:
-            return right
+    while left <= right:
+        if right <= left:
+            if arr[right] == x:
+                return right
+            else:
+                return -1
+
+        # промежуток не пуст
+        mid = (left + right) // 2
+        if x <= arr[mid]:
+            right = mid
         else:
-            return -1
-
-    # промежуток не пуст
-    mid = (left + right) // 2
-
-    if x <= arr[mid]:  # искомый элемент меньше центрального
-        # значит следует искать в левой половине
-        return binary_search(arr, x, left, mid)
-    else:  # иначе следует искать в правой половине
-        return binary_search(arr, x, mid + 1, right)
+            left = mid + 1
 
 
-def broken_search(nums, target) -> int:
+def broken_search_test(nums, target) -> int:
     j = len(nums) - 1
     i = 0
-    # берем середину массива
     mid = (j - i + 1) // 2
-
-    # print(i, mid, j, nums[i], nums[j])
-
-    if i > j:
-        return -1
 
     if (nums[j] < target or target < nums[i]) and nums[i] <= nums[j]:
         return -1
@@ -32,70 +25,60 @@ def broken_search(nums, target) -> int:
     if nums[i] <= target <= nums[j]:
         return binary_search(nums, target, i, j)
 
-    if nums[i] <= target <= nums[mid]:
-        return binary_search(nums, target, i, mid)
-
-    if nums[mid] <= target <= nums[j]:
-        return binary_search(nums, target, mid, j)
-
-    if target >= nums[i]:
-
-        if nums[mid] >= nums[i]:
-            # => массив отсортирован
-            # перелома нет
-            # значение в диапазоне, на следующем ходу будет бинари серч
-            # return broken_search(nums[i:mid+1], target)
-
-            if target < nums[mid]:
-                return broken_search(nums[i:mid], target)
-            else:
-                rez = broken_search(nums[mid:], target)
-                return mid + rez if rez >= 0 else rez
-
-
-        elif nums[mid] <= nums[i]:
-            # массив не отсортирован, следовательно отсортирован второй
-            # может быть два варианта -- он во втором или у нас:
-            if nums[mid] > target >= nums[j]:
-                # если он во втором, то
-                rez = broken_search(nums[mid:], target)
-                return mid + rez if rez >= 0 else rez
-            # в противном случае заново ищем в первом, деля его пополам
-            else:
-                return broken_search(nums[i:mid], target)
+    if nums[i] <= target:
+        if nums[i] < nums[mid] <= target:
+            rez = broken_search(nums[mid:], target)
+            return mid + rez if rez >= 0 else rez
+        else:
+            return broken_search(nums[i:mid], target)
 
     if target <= nums[j]:
+        if target < nums[mid] < nums[j]:
+            return broken_search(nums[i:mid], target)
+        else:
+            rez = broken_search(nums[mid:], target)
+            return mid + rez if rez >= 0 else rez
 
-        if nums[mid] <= nums[j]:
-            # => массив отсортирован
-            # перелома нет
-            # если значение в диапазоне, на следующем ходу будет бинари серч
-            if target >= nums[mid]:
-                rez = broken_search(nums[mid:], target)
-                return mid + rez if rez >= 0 else rez
+
+def broken_search(nums, target) -> int:
+    j = len(nums) - 1
+    i = 0
+
+    while i <= j:
+        mid = i + (j - i + 1) // 2
+
+        if (nums[j] < target or target < nums[i]) and nums[i] <= nums[j]:
+            return -1
+
+        if nums[i] <= target <= nums[j]:
+            return binary_search(nums, target, i, j)
+
+        if nums[i] <= target:
+            if nums[i] <= nums[mid] < target:
+                i = mid
+                continue
             else:
-                return broken_search(nums[i:mid], target)
+                j = mid - 1
+                continue
 
+        if target <= nums[j]:
+            if target < nums[mid] <= nums[j]:
+                j = mid - 1
+                continue
 
-        elif nums[mid] >= nums[j]:
-            # массив не отсортирован, следовательно отсортирован второй
-            # может быть два варианта -- он в первом или все еще у нас:
-            if nums[i] >= target >= nums[mid]:
-                # если он в первом, то
-                return broken_search(nums[i:mid], target)
             else:
-                # продолжаем искать во втором
-                rez = broken_search(nums[mid:], target)
-                return mid + rez if rez >= 0 else rez
+                i = mid
+                continue
+
+    return -1
+
 
 def test():
-    #arr = [19, 21, 100, 101, 1, 4, 5, 7, 12]
-    #arr = [3271, 3298, 3331, 3397, 3407, 3524, 3584, 3632, 3734, 3797, 3942, 4000, 4180, 4437, 4464, 4481, 4525, 4608, 4645, 4803, 4804, 4884, 4931, 4965, 5017, 5391, 5453, 5472, 5671, 5681, 5959, 6045, 6058, 6301, 6529, 6621, 6961, 7219, 7291, 7372, 7425, 7517, 7600, 7731, 7827, 7844, 7987, 8158, 8169, 8265, 8353, 8519, 8551, 8588, 8635, 9209, 9301, 9308, 9336, 9375, 9422, 9586, 9620, 9752, 9776, 9845, 9906, 9918, 16, 25, 45, 152, 199, 309, 423, 614, 644, 678, 681, 725, 825, 830, 936, 1110, 1333, 1413, 1617, 1895, 1938, 2107, 2144, 2184, 2490, 2517, 2769, 2897, 2970, 3023, 3112, 3156]
-    arr = [5, 4]
-    #arr = [710, 712, 714, 715, 716, 718, 720, 722, 723, 725, 727, 728, 730, 731, 732, 733, 734, 735, 736, 737, 738, 739, 741, 743, 748, 749, 750, 751, 752, 753, 755, 756, 757, 760, 761, 763, 764, 765, 766, 768, 771, 772, 773, 776, 778, 780, 781, 782, 783, 785, 788, 789, 790, 792, 793, 795, 797, 799, 800, 802, 803, 804, 805, 806, 809, 810, 811, 817, 818, 820, 822, 824, 826, 827, 830, 832, 833, 834, 836, 837, 839, 840, 841, 842, 846, 847, 849, 850, 853, 855, 856, 857, 859, 860, 861, 862, 863, 864, 866, 868, 870, 871, 873, 876, 877, 880, 884, 887, 888, 891, 892, 893, 894, 895, 898, 900, 902, 903, 904, 905, 906, 907, 908, 909, 912, 915, 919, 922, 924, 925, 927, 928, 929, 930, 931, 932, 933, 934, 936, 937, 938, 939, 940, 944, 945, 946, 947, 948, 949, 950, 954, 956, 958, 959, 960, 962, 963, 964, 965, 968, 970, 971, 973, 974, 975, 976, 977, 981, 983, 984, 986, 987, 988, 989, 990, 992, 993, 994, 995, 996, 997, 998, 999, 1000, 0, 1, 2, 3, 4, 6, 10, 11, 12, 14, 15, 17, 18, 19, 22, 23, 24, 25, 27, 28, 29, 30, 32, 33, 34, 35, 37, 38, 41, 42, 44, 46, 48, 49, 50, 51, 53, 54, 55, 56, 57, 59, 61, 62, 64, 65, 67, 68, 69, 72, 73, 74, 76, 80, 84, 85, 86, 88, 89, 90, 91, 93, 96, 97, 98, 100, 101, 102, 106, 107, 108, 109, 110, 111, 113, 114, 116, 117, 122, 123, 125, 127, 128, 129, 130, 132, 133, 134]
-    rez = broken_search(arr, 81)
-    # print(rez)
-    assert rez == -1
+    arr = [19, 21, 100, 101, 1, 4, 5, 7, 12]
+    for i, item in enumerate(arr):
+        rez = broken_search(arr, item)
+        print(rez)
+        assert rez == i
 
 
 if __name__ == '__main__':
