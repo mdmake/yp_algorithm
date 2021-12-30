@@ -1,3 +1,31 @@
+"""
+Номер посылки 63252442
+
+-- ПРИНЦИП РАБОТЫ --
+Я реализовал поиск элемента в сломанном массиве за O(log n). Работы алгоритма основанна на приеме
+'двух указателей', один из которых указывает на левую границу обоасти поиска, а второй на правую.
+На каждом шаге вычисляется середина области поиска, и, в зависимости от того где находится искомый элемент,
+сдвигается правая или левая границы.
+
+-- ДОКАЗАТЕЛЬСТВО КОРРЕКТНОСТИ --
+ Алгоритм функционирует по аналогии с обычным поиском, но с некоторыми особенностями.
+ Принцип работы строится на том, что сломанный массив при делении пополам распадается на две части,
+ 'сломанную' и 'упорядоченную по возрастанию'. Каждый шаг алгоритма делит массив пополам, и,
+ если элемент находится в упорядоченной части, запускается бинарный поиск, если в сломаной --
+ то сломанная часть опять делится по полам, пока не будет достигнута ситуация, при которой искомый элемент
+ находится в упорядоченной части массиваю.
+ Это условие достигается в любом случае, так как массив из одного элемента является упорядоченным
+
+-- ВРЕМЕННАЯ СЛОЖНОСТЬ --
+Каждый шаг алгоритма уменьшает область поиска в два раза. Временная сложность - O(log n)
+
+-- ПРОСТРАНСТВЕННАЯ СЛОЖНОСТЬ --
+Массив содержит n элементов. Дополнительная память не используется, пространственная сложность O(n).
+
+P.S. У меня есть красивое решение с рекурсией, но оно не проходт по времени.
+Это так и задумано, или я неправильно ее применял?)
+"""
+
 def binary_search(arr, x, left, right):
     while left <= right:
         if right <= left:
@@ -12,32 +40,6 @@ def binary_search(arr, x, left, right):
             right = mid
         else:
             left = mid + 1
-
-
-def broken_search_test(nums, target) -> int:
-    j = len(nums) - 1
-    i = 0
-    mid = (j - i + 1) // 2
-
-    if (nums[j] < target or target < nums[i]) and nums[i] <= nums[j]:
-        return -1
-
-    if nums[i] <= target <= nums[j]:
-        return binary_search(nums, target, i, j)
-
-    if nums[i] <= target:
-        if nums[i] < nums[mid] <= target:
-            rez = broken_search(nums[mid:], target)
-            return mid + rez if rez >= 0 else rez
-        else:
-            return broken_search(nums[i:mid], target)
-
-    if target <= nums[j]:
-        if target < nums[mid] < nums[j]:
-            return broken_search(nums[i:mid], target)
-        else:
-            rez = broken_search(nums[mid:], target)
-            return mid + rez if rez >= 0 else rez
 
 
 def broken_search(nums, target) -> int:
@@ -69,17 +71,4 @@ def broken_search(nums, target) -> int:
             else:
                 i = mid
                 continue
-
     return -1
-
-
-def test():
-    arr = [19, 21, 100, 101, 1, 4, 5, 7, 12]
-    for i, item in enumerate(arr):
-        rez = broken_search(arr, item)
-        print(rez)
-        assert rez == i
-
-
-if __name__ == '__main__':
-    test()
