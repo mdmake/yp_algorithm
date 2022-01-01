@@ -1,5 +1,5 @@
 """
-Номер посылки 63252442
+Номер посылки 63282987
 
 -- ПРИНЦИП РАБОТЫ --
 Я реализовал поиск элемента в сломанном массиве за O(log n). Работы алгоритма основанна на приеме
@@ -20,55 +20,36 @@
 Каждый шаг алгоритма уменьшает область поиска в два раза. Временная сложность - O(log n)
 
 -- ПРОСТРАНСТВЕННАЯ СЛОЖНОСТЬ --
-Массив содержит n элементов. Дополнительная память не используется, пространственная сложность O(n).
+Массив содержит n элементов. Дополнительная память не используется, пространственная сложность O(1).
 
 P.S. У меня есть красивое решение с рекурсией, но оно не проходт по времени.
 Это так и задумано, или я неправильно ее применял?)
 """
 
-def binary_search(arr, x, left, right):
-    while left <= right:
-        if right <= left:
-            if arr[right] == x:
-                return right
-            else:
-                return -1
-
-        # промежуток не пуст
-        mid = (left + right) // 2
-        if x <= arr[mid]:
-            right = mid
-        else:
-            left = mid + 1
+from typing import List
 
 
-def broken_search(nums, target) -> int:
+def broken_search(nums: List[int], target: int) -> int:
     j = len(nums) - 1
     i = 0
 
     while i <= j:
-        mid = i + (j - i + 1) // 2
+        mid = i + (j - i) // 2
 
-        if (nums[j] < target or target < nums[i]) and nums[i] <= nums[j]:
-            return -1
+        if nums[mid] == target:
+            return mid
 
-        if nums[i] <= target <= nums[j]:
-            return binary_search(nums, target, i, j)
-
-        if nums[i] <= target:
-            if nums[i] <= nums[mid] < target:
-                i = mid
-                continue
+        # левая половина отсортированна
+        if nums[i] <= nums[mid]:
+            if nums[i] <= target <= nums[mid]:
+                j = mid - 1
+            else:
+                i = mid + 1
+        # правая половина отсортированна
+        else:
+            if nums[mid] <= target <= nums[j]:
+                i = mid + 1
             else:
                 j = mid - 1
-                continue
 
-        if target <= nums[j]:
-            if target < nums[mid] <= nums[j]:
-                j = mid - 1
-                continue
-
-            else:
-                i = mid
-                continue
     return -1

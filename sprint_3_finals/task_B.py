@@ -1,5 +1,5 @@
 """
-Номер посылки 63252543
+Номер посылки 63282997
 
 -- ПРИНЦИП РАБОТЫ --
 Я реализовал эффективную быструю сортировку без использования дополнительной памяти.
@@ -31,14 +31,15 @@ O(n) и на каждом шаге будем выполнять O(n) опера
 на каждом уровне рекурсии мы буем проделывать O(n) операций, итого O(n log n)
 
 -- ПРОСТРАНСТВЕННАЯ СЛОЖНОСТЬ --
-Массив содержит n элементов. Дополнительная память не используется, пространственная сложность O(n).
+Массив содержит n элементов. Дополнительная память не используется, пространственная сложность O(1).
 """
 
 import sys
 from random import randint
+from typing import Tuple, List
 
 
-def comparator(item1, item2):
+def comparator(item1: Tuple[str, int, int], item2: Tuple[str, int, int]) -> bool:
     # сравниваем количество задач
     if item1[1] > item2[1]:
         return True
@@ -50,35 +51,27 @@ def comparator(item1, item2):
             # выбираем лексикографический порядок
             if item1[0] < item2[0]:
                 return True
-            else:
-                return False
-        else:
-            return False
-    else:
-        return False
+
+    return False
 
 
-def partition(array, pivot, left, right):
-    i = left
-    j = right
+def partition(array: List[Tuple[str, int, int]], pivot: Tuple[str, int, int], left: int, right: int):
+    while left < right:
+        while comparator(pivot, array[left]):
+            left += 1
+        while comparator(array[right], pivot):
+            right -= 1
+        if left >= right:
+            return right
+        array[left], array[right] = array[right], array[left]
 
-    while i < j:
-        while comparator(pivot, array[i]):
-            i += 1
-        while comparator(array[j], pivot):
-            j -= 1
-        if i >= j:
-            return j
-        array[i], array[j] = array[j], array[i]
-
-    return j
+    return right
 
 
-def quicksort(array, left, right):
-    if left >= right or right < 0 or left > (len(array) - 1):  # базовый случай,
+def quicksort(array: List[Tuple[str, int, int]], left: int, right: int):
+    if left >= right or right < 0 or left > (len(array) - 1):
         return
     else:
-
         pivot = array[randint(left, right)]
         index = partition(array, pivot, left, right)
 
