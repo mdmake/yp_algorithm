@@ -31,7 +31,8 @@ O(n) и на каждом шаге будем выполнять O(n) опера
 на каждом уровне рекурсии мы буем проделывать O(n) операций, итого O(n log n)
 
 -- ПРОСТРАНСТВЕННАЯ СЛОЖНОСТЬ --
-Массив содержит n элементов. Дополнительная память не используется, пространственная сложность O(1).
+Массив содержит n элементов. Используется дополнительная память в виде затрат на вызов рекурсии,
+пространственная сложность O(1).
 """
 
 import sys
@@ -71,12 +72,12 @@ def partition(array: List[Tuple[str, int, int]], pivot: Tuple[str, int, int], le
 def quicksort(array: List[Tuple[str, int, int]], left: int, right: int):
     if left >= right or right < 0 or left > (len(array) - 1):
         return
-    else:
-        pivot = array[randint(left, right)]
-        index = partition(array, pivot, left, right)
 
-        quicksort(array, left, index - 1)
-        quicksort(array, index + 1, right)
+    pivot = array[randint(left, right)]
+    index = partition(array, pivot, left, right)
+
+    quicksort(array, left, index - 1)
+    quicksort(array, index + 1, right)
 
 
 def main():
