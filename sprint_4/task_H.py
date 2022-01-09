@@ -1,7 +1,8 @@
 import sys
 
 
-def myhash(s):
+def myHash(s):
+
     hashTable = dict()
 
     hashSum = 0
@@ -9,7 +10,7 @@ def myhash(s):
         if char not in hashTable:
             hashTable[char] = i
 
-        hashSum += hashTable[char]
+        hashSum += hashTable[char]*i
     return hashSum
 
 
@@ -17,7 +18,7 @@ def main():
     s1 = sys.stdin.readline().rstrip()
     s2 = sys.stdin.readline().rstrip()
 
-    if myhash(s1) == myhash(s2):
+    if myHash(s1) == myHash(s2):
         print('YES')
     else:
         print('NO')
