@@ -4,29 +4,31 @@ import sys
 def main():
     databaseDocumentCount = int(sys.stdin.readline().rstrip())
 
-    databaseIndex = []
-    # Для каждого документа в БД составляем словарь {слово: количество упоминаний в документе}
+    db = []
     for i in range(databaseDocumentCount):
-        countDict = dict()
-        for word in sys.stdin.readline().rstrip().split():
-            if word not in countDict:
-                countDict[word] = 1
-            else:
-                countDict[word] += 1
+        db.append(sys.stdin.readline().rstrip().split())
 
-        databaseIndex.append(countDict)
+    mdict = dict()
+    for i, record in enumerate(db):
+        for word in record:
+            if word not in mdict:
+                mdict[word] = {i: 0 for i in range(databaseDocumentCount)}
+            mdict[word][i] += 1
 
 
     requestCount = int(sys.stdin.readline().rstrip())
     # для каждого запроса
+
     for i in range(requestCount):
+        rez = [[i, 0] for i in range(databaseDocumentCount)]
+
         request = set(sys.stdin.readline().rstrip().split())
         # Для каждого запроса считаем релевантность текстов в БД
-        rez = []
-        for i, index in enumerate(databaseIndex):
-            rez.append([i, 0])
-            for word in request:
-                rez[-1][1] += index.get(word, 0)
+        for word in request:
+            if word in mdict:
+                for i in range(databaseDocumentCount):
+                    rez[i][1] += mdict[word][i]
+
 
         rez.sort(key=lambda x: x[1], reverse=True)
 
