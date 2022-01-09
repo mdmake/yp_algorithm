@@ -4,36 +4,33 @@ import sys
 def main():
     databaseDocumentCount = int(sys.stdin.readline().rstrip())
 
-    databaseDocuments = []
-    for i in range(databaseDocumentCount):
-        databaseDocuments.append([item for item in sys.stdin.readline().rstrip().split()])
-
     databaseIndex = []
-    for sentence in databaseDocuments:
-        databaseIndex.append({word: sentence.count(word) for word in sentence})
+    # Для каждого документа в БД составляем словарь {слово: количество упоминаний в документе}
+    for i in range(databaseDocumentCount):
+        countDict = dict()
+        for word in sys.stdin.readline().rstrip().split():
+            if word not in countDict:
+                countDict[word] = 1
+            else:
+                countDict[word] += 1
+
+        databaseIndex.append(countDict)
+
 
     requestCount = int(sys.stdin.readline().rstrip())
-    requests = []
+    # для каждого запроса
     for i in range(requestCount):
-        requests.append({item for item in sys.stdin.readline().rstrip().split()})
-
-    for request in requests:
-        rez = dict()
+        request = set(sys.stdin.readline().rstrip().split())
+        # Для каждого запроса считаем релевантность текстов в БД
+        rez = []
         for i, index in enumerate(databaseIndex):
-            s = sum([index.get(word, 0) for word in request])
-            if s in rez:
-                rez[s].append(i+1)
-            else:
-                rez[s] = [i+1, ]
+            rez.append([i, 0])
+            for word in request:
+                rez[-1][1] += index.get(word, 0)
 
+        rez.sort(key=lambda x: x[1], reverse=True)
 
-        rezForPrint = []
-        for k in sorted(rez.keys(), reverse=True):
-            if k > 0:
-                for item in rez[k]:
-                    rezForPrint.append(item)
-
-        print(*rezForPrint[:5])
+        print(*[item[0]+1 for item in rez[:5] if item[1] > 0])
 
 if __name__ == '__main__':
     main()
