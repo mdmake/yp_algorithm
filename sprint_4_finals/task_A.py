@@ -1,38 +1,47 @@
 import sys
 
-
 def main():
     databaseDocumentCount = int(sys.stdin.readline().rstrip())
 
-    db = []
-    for i in range(databaseDocumentCount):
-        db.append(sys.stdin.readline().rstrip().split())
-
     mdict = dict()
-    for i, record in enumerate(db):
+    for i in range(databaseDocumentCount):
+        record = sys.stdin.readline().rstrip().split()
         for word in record:
             if word not in mdict:
-                mdict[word] = {i: 0 for i in range(databaseDocumentCount)}
-            mdict[word][i] += 1
-
+                mdict[word] = {i: record.count(word)}
+            mdict[word][i] = record.count(word)
 
     requestCount = int(sys.stdin.readline().rstrip())
-    # для каждого запроса
 
-    for i in range(requestCount):
-        rez = [[i, 0] for i in range(databaseDocumentCount)]
+    #dbrequest = dict()
+    dbwordrequest = dict()
+    for _ in range(requestCount):
 
-        request = set(sys.stdin.readline().rstrip().split())
-        # Для каждого запроса считаем релевантность текстов в БД
+        request = frozenset(sys.stdin.readline().rstrip().split())
+
+        #if request not in dbrequest:
+            # этот запрос еще никогда не обрабатывался
+            # готовим структуру для релевантности
+        rez = {i: 0 for i in range(databaseDocumentCount)}
         for word in request:
+            # если слово вообще есть в текстах
             if word in mdict:
-                for i in range(databaseDocumentCount):
-                    rez[i][1] += mdict[word][i]
+                # смотрим для каждого слова
+                # 1-- мы еще никогда не искали это слово по всем текстам
+                # 2 -- уже искали и запомнили
 
+                # заполняем словарик
+                if word not in dbwordrequest:
+                    dbwordrequest[word] = dict()
+                    if word in mdict:
+                        for k in mdict[word]:
+                            dbwordrequest[word][k] = mdict[word][k]
+                #  берем данные из словарика
+                for k in dbwordrequest[word]:
+                    rez[k] += dbwordrequest[word][k]
 
-        rez.sort(key=lambda x: x[1], reverse=True)
+        print(*[ky+1 for ky in sorted(rez, key=rez.get, reverse=True)[:5] if rez[ky] > 0])
 
-        print(*[item[0]+1 for item in rez[:5] if item[1] > 0])
 
 if __name__ == '__main__':
     main()
