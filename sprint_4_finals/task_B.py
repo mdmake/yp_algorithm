@@ -2,10 +2,10 @@ import sys
 
 
 class Node:
-    def __init__(self, key, value):
+    def __init__(self, key, value, next=None):
         self.key = key
         self.value = value
-        self.next = None
+        self.next = next
 
 
 class MyList:
@@ -13,43 +13,44 @@ class MyList:
         self.head = None
 
     def find(self, key):
+
         node = self.head
-        prev = None
-        while node is not None and node.key != key:
-            prev = node
+        while node is not None:
+            if node.key == key:
+                return node
             node = node.next
-        return prev, node
+        return None
 
     def add(self, key, value):
-
-        prev, node = self.find(key)
-        if prev is None:
-            self.head = Node(key, value)
-        elif node is None:
-            prev.next = Node(key, value)
+        node = self.find(key)
+        if node is None:
+            buffer = self.head
+            self.head = Node(key, value, buffer)
         else:
             node.value = value
 
     def delete(self, key):
-        prev, node = self.find(key)
+        node = self.head
+
+        prev = None
+        while node is not None:
+            if node.key == key:
+
+                if prev is None:
+                    self.head = node.next
+                else:
+                    prev.next = node.next
+                return node.value
+            prev = node
+            node = node.next
+
+        return None
+
+    def get(self, key):
+        node = self.find(key)
 
         if node is None:
             return None
-        elif prev is None:
-            self.head = node.next
-            return node.value
-
-        prev.next = node.next
-        return node.value
-
-    def get(self, key):
-        prev, node = self.find(key)
-
-        if node is None:
-            if prev is None:
-                return None
-            else:
-                return prev.value
 
         return node.value
 
@@ -82,15 +83,11 @@ def main():
         command = sys.stdin.readline().rstrip().split()
 
         if command[0] == 'get':
-            print(command, hashTable.get(int(command[1])))
+            print(hashTable.get(int(command[1])))
         elif command[0] == 'put':
             hashTable.put(int(command[1]), int(command[2]))
-            print(command)
-        elif command[0] == 'delete':
-            print(command, hashTable.delete(int(command[1])))
         else:
-            pass
-
+            print(hashTable.delete(int(command[1])))
 
 
 if __name__ == '__main__':
