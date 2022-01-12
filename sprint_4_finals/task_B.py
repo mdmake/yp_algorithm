@@ -1,8 +1,33 @@
+"""
+Номер посылки 63668784
+
+-- ПРИНЦИП РАБОТЫ --
+Я реализовал хэш таблицу с механизмом разрешения коллизий с помощью метода цепочек
+
+
+-- ДОКАЗАТЕЛЬСТВО КОРРЕКТНОСТИ --
+Количество элементов не может превышать 10^5,
+Для того что бы поддерживать коэффициент заполнения на уровне alpha = 2/3
+выберем в качестве количества корзин ближайшее простое число к 10^5/alpha, то есть 150001
+Оптимальнее было бы использовать коэффициент заполнения 1/3, но в этом случае решение
+не проходит по объему используемой памяти
+
+
+-- ВРЕМЕННАЯ СЛОЖНОСТЬ --
+В моем алгоритме используется разрешение коллизий с помощью метода цепочек, наиболее затратная
+операция -- поиск элемента в цепочке, в худшем случае O(n), в среднем -- O(1)
+В этой задаче средняя временная сложность достигается за счет выбора количества корзин.
+
+-- ПРОСТРАНСТВЕННАЯ СЛОЖНОСТЬ --
+Дополнительная память не используется, пространственная сложность O(1)
+"""
+
 import sys
+from typing import Union
 
 
 class Node:
-    def __init__(self, key, value, next=None):
+    def __init__(self, key: int, value: int, next: Union[None, 'Node'] = None):
         self.key = key
         self.value = value
         self.next = next
@@ -12,7 +37,7 @@ class MyList:
     def __init__(self):
         self.head = None
 
-    def find(self, key):
+    def find(self, key) -> Union[None, 'Node']:
 
         node = self.head
         while node is not None:
@@ -21,7 +46,7 @@ class MyList:
             node = node.next
         return None
 
-    def add(self, key, value):
+    def add(self, key: int, value: int):
         node = self.find(key)
         if node is None:
             buffer = self.head
@@ -29,7 +54,7 @@ class MyList:
         else:
             node.value = value
 
-    def delete(self, key):
+    def delete(self, key: int) -> Union[None, int]:
         node = self.head
 
         prev = None
@@ -46,7 +71,7 @@ class MyList:
 
         return None
 
-    def get(self, key):
+    def get(self, key: int) -> Union[None, int]:
         node = self.find(key)
 
         if node is None:
@@ -56,25 +81,26 @@ class MyList:
 
 
 class MyHashTable:
-    def __init__(self, M):
+    def __init__(self, M: int):
         self.M = M
         self.data = [MyList() for _ in range(M)]
 
-    def get(self, key):
-        return self.data[self.h(key)].get(key)
+    def get(self, key: int) -> Union[None, int]:
+        return self.data[self.simpleHash(key)].get(key)
 
-    def put(self, key, value):
-        self.data[self.h(key)].add(key, value)
+    def put(self, key: int, value: int):
+        self.data[self.simpleHash(key)].add(key, value)
 
-    def delete(self, key):
-        return self.data[self.h(key)].delete(key)
+    def delete(self, key: int) -> Union[None, int]:
+        return self.data[self.simpleHash(key)].delete(key)
 
-    def h(self, x):
+    def simpleHash(self, x: int) -> int:
         return x % self.M
 
 
 def main():
-    M = 2  # количество корзин == максимальное число запросов * 3
+
+    M = 150001
 
     count = int(sys.stdin.readline().rstrip())
 
