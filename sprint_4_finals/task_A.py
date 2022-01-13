@@ -1,5 +1,16 @@
 """
-Номер посылки 63668674
+Номер посылки 63767478
+
+-- UPDATE --
+Узким место в программе является массива релеавтностей запроса каждому из документов.
+Вместо того чтобы сортировать весь массив со сложностью O(n logn) можно возмользоваться алгоритмом
+quickselect, который позволяет найти 5-ый минимальный/максимальный элемент со средней сложностью O(n)
+После применения алгоритма к массиву, достаточно будет будет необходимо отсортировать оставшиеся 4 элемента
+так как quickselect гарантирует что элементы справа больше чем 5-ый, но не гарантирует что он идет по порядку,
+сложность -- О(1)
+Для реализации алгоритма я использовал https://en.wikipedia.org/wiki/Quickselect
+и https://www.geeksforgeeks.org/quickselect-algorithm/
+
 
 -- ПРИНЦИП РАБОТЫ --
 Я реализовал поисковую систему (трепещи, Google), которая:
@@ -8,6 +19,7 @@
  - считывает m запросов
  - вычисляет релевантность каждого документа для каждого запроса
  - выводит порядковые номера 5 документов с максимальной релеавтностью для каждого запроса
+
 
 -- ДОКАЗАТЕЛЬСТВО КОРРЕКТНОСТИ --
 В качестве поискового индекса строится словарь -- хеш-массив вида
@@ -35,6 +47,7 @@ m -- количество документов,
 где
 p -- количество слов в запросе,
 n -- количество запросов
+
 Количество слов в документах конечно, количество слов в запросах конечно.
 Итоговая сложность -- O(k*m + p*n*k) ~ O(N)
 
@@ -47,63 +60,87 @@ n -- количество запросов
 Итоговая сложность линейн зависит от количества документов и количества запроов ~ O(N)
 """
 
+import random
 import sys
-from typing import List, Dict, FrozenSet
+from typing import Tuple, List
 
 
-def createIndex(count: int) -> Dict[str, Dict[int, int]]:
-    index = dict()
-    for i in range(count):
-        record = sys.stdin.readline().rstrip().split()
-        for word in record:
-            if word not in index:
-                index[word] = {i: record.count(word)}
-            index[word][i] = record.count(word)
-    return index
+def comparator(a: Tuple[int], b: Tuple[int]) -> bool:
+    if a[1] > b[1]:
+        return True
+    elif a[1] == b[1]:
+        if a[0] < b[0]:
+            return True
+    return False
 
 
-def processRequest(
-    request: FrozenSet[str],
-    index: Dict[str, Dict[int, int]],
-    documentCount: int,
-    requestsWordHash: Dict[str, Dict[int, int]],
-) -> List[int]:
+def partition(data: List[Tuple[int]], left: int, right: int) -> int:
+    pivotIndex = random.randint(left, right)
+    pivot = data[pivotIndex]
+    data[right], data[pivotIndex] = data[pivotIndex], data[right]
+    i = left - 1
+    for j in range(left, right):
+        if comparator(data[j], pivot):
+            i += 1
+            # if j > i:
+            # print(f'swap A[{i}] and A[{j}]')
+            data[i], data[j] = data[j], data[i]
+    data[i + 1], data[right] = data[right], data[i + 1]
+    return i + 1
 
-    rez = {i: 0 for i in range(documentCount)}
-    for word in request:
-        # если слово вообще есть в текстах
-        if word in index:
 
-            # если мы еще никогда не искали это слово по всем текстам
-            # то заполняем словарик
-            if word not in requestsWordHash:
-                requestsWordHash[word] = dict()
-                if word in index:
-                    for k in index[word]:
-                        requestsWordHash[word][k] = index[word][k]
+def quickSelectKMaxSublist(data: List[Tuple[int]], K: int, left: int, right: int) -> List[Tuple[int]]:
 
-            #  берем данные из словарика
-            for k in requestsWordHash[word]:
-                rez[k] += requestsWordHash[word][k]
+    if K > right-1:
+        return data
 
-    return [
-        item + 1 for item in sorted(rez, key=rez.get, reverse=True)[:5] if rez[item] > 0
-    ]
+    while left < right:
+        pivotIndex = partition(data, left, right)
+
+        if K == pivotIndex:
+            return data[:K + 1]
+        if K < pivotIndex:
+            right = pivotIndex - 1
+        else:
+            left = pivotIndex + 1
+
+    return data[:K + 1]
 
 
 def main():
     databaseDocumentCount = int(sys.stdin.readline().rstrip())
 
-    index = createIndex(databaseDocumentCount)
+    index = dict()
+    for i in range(databaseDocumentCount):
+        record = sys.stdin.readline().rstrip().split()
+
+        for word in record:
+            buffer = index.get(word, {})
+            buffer[i] = buffer.get(i, 0) + 1
+            index[word] = buffer
 
     requestCount = int(sys.stdin.readline().rstrip())
-    dbWordsRequest = dict()
 
+    requestCach = {}
     for _ in range(requestCount):
+
         request = frozenset(sys.stdin.readline().rstrip().split())
 
-        result = processRequest(request, index, databaseDocumentCount, dbWordsRequest)
-        print(*result)
+        if request not in requestCach:
+            result = {}
+            for word in request:
+                for document, count in index.get(word, {}).items():
+                    result[document] = count + result.get(document, 0)
+
+            resultList = list(result.items())
+            kSorted = quickSelectKMaxSublist(resultList, 4, 0, len(resultList) - 1)
+            finalResult = [item[0] + 1 for item in sorted(kSorted[:5], key=lambda x: (-x[1], x[0]))]
+            requestCach[request] = finalResult
+        else:
+            finalResult = requestCach[request]
+
+
+        print(*finalResult)
 
 
 if __name__ == "__main__":

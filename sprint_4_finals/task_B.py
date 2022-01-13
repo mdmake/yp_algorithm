@@ -1,5 +1,5 @@
 """
-Номер посылки 63668784
+Номер посылки 63767539
 
 -- ПРИНЦИП РАБОТЫ --
 Я реализовал хэш таблицу с механизмом разрешения коллизий с помощью метода цепочек
@@ -19,15 +19,16 @@
 В этой задаче средняя временная сложность достигается за счет выбора количества корзин.
 
 -- ПРОСТРАНСТВЕННАЯ СЛОЖНОСТЬ --
-Дополнительная память не используется, пространственная сложность O(1)
+Используется дополнительная память для организации хранения данных,
+объем памяти линейно зависит от количества поступивших элементов --  O(n)
 """
 
 import sys
-from typing import Union
+from typing import Optional, Union
 
 
 class Node:
-    def __init__(self, key: int, value: int, next: Union[None, 'Node'] = None):
+    def __init__(self, key: int, value: int, next: Optional['Node'] = None):
         self.key = key
         self.value = value
         self.next = next
@@ -37,7 +38,7 @@ class MyList:
     def __init__(self):
         self.head = None
 
-    def find(self, key) -> Union[None, 'Node']:
+    def find(self, key: int) -> Optional['Node']:
 
         node = self.head
         while node is not None:
@@ -46,7 +47,7 @@ class MyList:
             node = node.next
         return None
 
-    def add(self, key: int, value: int):
+    def add(self, key: int, value: int) -> None:
         node = self.find(key)
         if node is None:
             buffer = self.head
@@ -54,7 +55,7 @@ class MyList:
         else:
             node.value = value
 
-    def delete(self, key: int) -> Union[None, int]:
+    def delete(self, key: int) -> Optional[int]:
         node = self.head
 
         prev = None
@@ -71,7 +72,7 @@ class MyList:
 
         return None
 
-    def get(self, key: int) -> Union[None, int]:
+    def get(self, key: int) -> Optional[int]:
         node = self.find(key)
 
         if node is None:
@@ -85,13 +86,13 @@ class MyHashTable:
         self.M = M
         self.data = [MyList() for _ in range(M)]
 
-    def get(self, key: int) -> Union[None, int]:
+    def get(self, key: int) -> Optional[int]:
         return self.data[self.simpleHash(key)].get(key)
 
-    def put(self, key: int, value: int):
+    def put(self, key: int, value: int) -> None:
         self.data[self.simpleHash(key)].add(key, value)
 
-    def delete(self, key: int) -> Union[None, int]:
+    def delete(self, key: int) -> Optional[int]:
         return self.data[self.simpleHash(key)].delete(key)
 
     def simpleHash(self, x: int) -> int:
