@@ -1,5 +1,5 @@
 """
-Номер посылки 63767478
+Номер посылки
 
 -- UPDATE --
 Узким место в программе является массива релеавтностей запроса каждому из документов.
@@ -47,7 +47,6 @@ m -- количество документов,
 где
 p -- количество слов в запросе,
 n -- количество запросов
-
 Количество слов в документах конечно, количество слов в запросах конечно.
 Итоговая сложность -- O(k*m + p*n*k) ~ O(N)
 
@@ -106,6 +105,15 @@ def quickSelectKMaxSublist(data: List[Tuple[int]], K: int, left: int, right: int
 
     return data[:K + 1]
 
+def max5(elements):
+    for i in range(min(5, len(elements))):
+        for j in range(i, len(elements)):
+            #if key(elements[i]) < key(elements[j]):
+            if comparator(elements[j], elements[i]):
+                elements[i], elements[j] = elements[j], elements[i]
+
+    return elements[:5]
+
 
 def main():
     databaseDocumentCount = int(sys.stdin.readline().rstrip())
@@ -132,16 +140,12 @@ def main():
                 for document, count in index.get(word, {}).items():
                     result[document] = count + result.get(document, 0)
 
-            resultList = list(result.items())
-            kSorted = quickSelectKMaxSublist(resultList, 4, 0, len(resultList) - 1)
-            finalResult = [item[0] + 1 for item in sorted(kSorted[:5], key=lambda x: (-x[1], x[0]))]
-            requestCach[request] = finalResult
-        else:
-            finalResult = requestCach[request]
+            requestCach[request] = [item[0] + 1 for item in max5( list(result.items()))]
 
+        print(*requestCach[request])
 
-        print(*finalResult)
 
 
 if __name__ == "__main__":
     main()
+
