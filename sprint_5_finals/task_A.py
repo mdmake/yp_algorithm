@@ -14,7 +14,7 @@ def comparator(a, b)->bool:
     # при равенстве решенных задач смотрим на штрафы
     elif a[1] == b[1]:
         if a[2] > b[2]:
-            return True
+            return False
         elif a[2] == b[2]:
             # при равенстве штрафов смотрим на логины
             if a[0] > b[0]:
@@ -31,12 +31,13 @@ def sift_down(heap, idx):
     if size < left:
         return idx
 
-    if (right <= size) and (heap[left] < heap[right]):
+    #if (right <= size) and (heap[left] < heap[right]):
+    if (right <= size) and comparator(heap[right], heap[left]):
         index_largest = right
     else:
         index_largest = left
 
-    if heap[idx] < heap[index_largest]:
+    if comparator(heap[index_largest], heap[idx]):
         heap[idx], heap[index_largest] = heap[index_largest], heap[idx]
         return sift_down(heap, index_largest)
     else:
@@ -48,7 +49,8 @@ def sift_up(heap, idx):
         return idx
 
     parent_index = idx // 2
-    if heap[parent_index] < heap[idx]:
+    #if heap[parent_index] < heap[idx]:
+    if comparator(heap[idx], heap[parent_index]):
         heap[parent_index], heap[idx] = heap[idx], heap[parent_index]
         return sift_up(heap, parent_index)
     else:
@@ -93,7 +95,7 @@ def heapsort(array):
 #     # псевдокод для heap_get_max_priority можно посмотреть в прошлом уроке
         i += 1
 
-    return sorted_array
+    return sorted_array[:-1]
 
 
 
@@ -105,17 +107,28 @@ def main():
         row = sys.stdin.readline().rstrip().split()
         data.append((row[0], int(row[1]), int(row[2])))
 
-    print(data)
+    result = heapsort(data)
+
+    for name, *_ in result:
+        print(name)
 
 
 
 
 def test():
-    arr = [3, 5, 1, 6, 9, 2,  -3, 11, 26, 7]
+    #arr = [3, 5, 1, 6, 9, 2,  -3, 11, 26, 7]
+    arr= [
+        ('alla', 4, 100),
+        ('gena', 6, 1000),
+        ('gosha', 2, 90),
+        ('rita', 2, 90),
+        ('timofey', 4, 80),]
     d = heapsort(arr)
     print(d)
 
 
 if __name__ == '__main__':
-    #main()
-    test()
+    main()
+    #test()
+
+
