@@ -1,9 +1,9 @@
 # Comment it before submitting
-# class Node:
-#     def __init__(self, left=None, right=None, value=0):
-#         self.right = right
-#         self.left = left
-#         self.value = value
+class Node:
+    def __init__(self, left=None, right=None, value=0):
+        self.right = right
+        self.left = left
+        self.value = value
 
 ## ============================================================================================================
 
@@ -12,16 +12,19 @@ def getRight(node):
         return node
     return getRight(node.right)
 
+
 def getLeft(node):
     if node.left is None:
         return node
     return getLeft(node.left)
+
 
 # берем самую левую вершину поддерева
 def getRightNodeLS(node):
     if node.left is None:
         return None
     return getRight(node.left)
+
 
 # берем самую правую вершину поддерева
 def getLeftNodeRS(node):
@@ -41,10 +44,10 @@ def findNodeByKey(root, key):
     else:  # key< root.value
         return findNodeByKey(root.left, key)
 
+
 ## ============================================================================================================
 
 # getRightNodeOfLeftSubtree
-
 
 
 def getRightNodeIter(node):
@@ -77,6 +80,7 @@ def getLeftNodeRSIter(node):
 
     return parent, node
 
+
 def getRightNodeLSIter(node):
     if node.left is None:
         return None, None,
@@ -90,7 +94,6 @@ def getRightNodeLSIter(node):
 
 
 def findNodeByKeyIter(root, key):
-
     if root.value is None:
         return None, None
     if root.value == key:
@@ -118,20 +121,19 @@ def findNodeByKeyIter(root, key):
     return None, None
 
 
-
 def remove(root, key):
-
     # Для простоты повествования мы всегда будем брать самую правую вершину в левом поддереве.
     # При желании вы сможете адаптировать алгоритм, считая, что берётся самая левая
     # вершина в правом поддереве.
+    if root is None:
+        return root
+
     parentD, D = findNodeByKeyIter(root, key)
 
     if D is None:
         return root
 
-
     # Если удаляемый нод -- лист
-
 
     if D.left is None and D.right is None:
         if parentD is None:
@@ -147,7 +149,6 @@ def remove(root, key):
     # если D не лист
     # ищем нод на замену -- самая левая вершина в правом поддереве
     # те P.right = None
-
 
     if D.right is None:
         if parentD is None:
@@ -168,19 +169,16 @@ def remove(root, key):
                 parentD.left = D.right
             return root
 
-
     parentP, P = getRightNodeLSIter(D)
 
     # если справа есть поддерево и мы нашли замещающий нод
     # аккуратно заменяющий выдираем нод из дерева
     # если нод на замену -- лист
 
-
     if parentP.right == P:
         parentP.right = P.left
     else:
         parentP.left = P.left
-
 
     P.right = D.right
     P.left = D.left
@@ -194,9 +192,6 @@ def remove(root, key):
         return root
     else:
         return P
-
-
-
 
 
 def test():
@@ -273,7 +268,6 @@ def test():
     # assert newHead.left is None
     # assert newHead.left is None
 
-
     # ===========================================================================================
     # full tree P.parent == D
     node7 = Node(None, None, 7)
@@ -292,8 +286,6 @@ def test():
     assert newHead.left is node2
     # ===========================================================================================
 
-
-
     # ===========================================================================================
     # full tree P.parent == D
     node7 = Node(None, None, 7)
@@ -310,7 +302,6 @@ def test():
     assert newHead is node4
     assert newHead.right is node7
     # ===========================================================================================
-
 
     # ===========================================================================================
     # full tree P.parent == D
@@ -330,8 +321,6 @@ def test():
     assert newHead.right is node5
     # ===========================================================================================
 
-
-
     # ===========================================================================================
     # full tree
     node7 = Node(None, None, 7)
@@ -343,7 +332,7 @@ def test():
     node13 = Node(None, None, 13)
     node15 = Node(None, None, 15)
 
-    #right
+    # right
     node14 = Node(node13, node15, 14)
     node10 = Node(node9, node11, 10)
     node12 = Node(node10, node14, 12)
@@ -363,26 +352,10 @@ def test():
     # assert newHead.left.left == None
     # ===========================================================================================
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     # node4 = Node(None, None, 6)
     # node5 = Node(node4, None, 8)
     # node6 = Node(node5, None, 10)
     # node7 = Node(node3, node6, 5)
-
-
 
     # assert newHead.right is node5
     # assert newHead.right.value == 8
@@ -394,6 +367,7 @@ def test():
     #                node2(3)   node5(8)
     #               /           /
     #           node1(2)    node4(6)
+
 
 if __name__ == '__main__':
     test()
