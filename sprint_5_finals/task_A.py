@@ -1,15 +1,51 @@
-import sys
+"""
+Номер посылки 65482923
 
-# Тимофей решил сортировать таблицу результатов следующим образом:
-# при сравнении двух участников выше будет идти тот, у которого решено больше задач.
-# При равенстве числа решённых задач первым идёт участник с меньшим штрафом.
-# Если же и штрафы совпадают, то первым будет тот,
-# у которого логин идёт раньше в алфавитном (лексикографическом) порядке.
-# alla 4 100
-# логин задачи штрафы
-# comparatorAMoreThenB
-def comparator(a, b)->bool:
-    if a[1]<b[1]:
+
+-- ПРИНЦИП РАБОТЫ --
+Я реализовал сортировку кучей (max-heap), принцип работы сортировки:
+    - считывается массив элементов, который необходимо отсортировать
+    - элементы по одному вставляются в кучу (с созранением ее свойств). В результате
+        работы алгоритма построения кучи, на вершине кучи находится максимальный элемент массива
+    - извлекается элемент с максимальным приоритетом (первый), после чего куча перестраивается
+    - процесс продолжается, пока из кучи не извлекутся все элементы
+
+-- ДОКАЗАТЕЛЬСТВО КОРРЕКТНОСТИ --
+Корректность алгоритма строится на том, что на вершине кучи (max-heap)
+находится максимальный по приоритету элемент. После извлечения максимального элемента и
+перестроения кучи, на вершине оказывается следующий по приоритету.
+
+-- ВРЕМЕННАЯ СЛОЖНОСТЬ --
+Создание кучи -- O(1) -- выделяем место под n элементов
+Вставка n  элементов -- O(log1)+O(log2)+...+O(logn). Оценивая сверху, получаем O(n log n)
+Извлечение элемента -- не более чем O(n log n)
+Итоговая сложность -- O(1) + O(n log n) + O(n log n) ~ O(n log n)
+
+-- ПРОСТРАНСТВЕННАЯ СЛОЖНОСТЬ
+Для писанной реализации алгоритма пирамидальной сортировки нужно выделить память под массив из
+n элементов. То есть требуется O(n) дополнительной памяти.
+"""
+
+
+import sys
+from typing import Tuple
+
+
+def comparator(a: Tuple[str, int, int], b: Tuple[str, int, int]) -> bool:
+    """
+    Реализет сранение двух элементов
+    Каждый элемент -- запись о участнике соревнования.
+    Запись каждого из участников состоит из логина, количества решенных задач и штрафа.
+    Сравнение реализованно следующим образом: при сравнении двух участников выше
+    будет идти тот, у которого решено больше задач.
+    При равенстве числа решённых задач первым идёт участник с меньшим штрафом.
+    Если же и штрафы совпадают, то первым будет тот, у которого логин идёт раньше
+    в алфавитном (лексикографическом) порядке.
+    :param a: Первый участник
+    :param b: Второй участник
+    :return: Возвращает True, если первый элемент больше второго
+    """
+    if a[1] < b[1]:
         return False
     # при равенстве решенных задач смотрим на штрафы
     elif a[1] == b[1]:
@@ -21,114 +57,127 @@ def comparator(a, b)->bool:
                 return False
     return True
 
-def sift_down(heap, idx):
-    # получли левого и правого потомков
-    left = 2 * idx
-    right = 2 * idx + 1
 
-    size = len(heap) - 1  # size = 6
+class Heap:
 
-    if size < left:
-        return idx
+    def __init__(self, source, comparator):
+        """
+        :param source: массив исходных данных, из которых строится куча
+        :param comparator: функция, определяющая отношение неравенства
+                           на множестве исходных элементов
+        """
+        self.size = 0
+        self.heap = [0] * (len(source) + 1)
 
-    #if (right <= size) and (heap[left] < heap[right]):
-    if (right <= size) and comparator(heap[right], heap[left]):
-        index_largest = right
-    else:
-        index_largest = left
+        self.compare = comparator
 
-    if comparator(heap[index_largest], heap[idx]):
-        heap[idx], heap[index_largest] = heap[index_largest], heap[idx]
-        return sift_down(heap, index_largest)
-    else:
-        return idx
+        self.heap[0] = -1
+        for key in source:
+            self.heap_add(key)
 
+    def heap_add(self, item):
+        """
+        Добавление элемента в кучу
+        :param item: добавляемый элемент
+        """
 
-def sift_up(heap, idx):
-    if idx == 1:
-        return idx
+        self.size += 1
+        self.heap[self.size] = item
+        self.sift_up(self.size)
 
-    parent_index = idx // 2
-    #if heap[parent_index] < heap[idx]:
-    if comparator(heap[idx], heap[parent_index]):
-        heap[parent_index], heap[idx] = heap[idx], heap[parent_index]
-        return sift_up(heap, parent_index)
-    else:
-        return idx
+    def sift_up(self, idx):
+        """
+        Просеивание вверх
+        :param idx: индекс 'просеиваемого' элемента
+        """
+        while idx > 1:
 
-def heap_add(heap, key):
-    size = len(heap) - 1
+            parent_index = idx // 2
+            if self.compare(self.heap[idx], self.heap[parent_index]):
+                self.heap[parent_index], self.heap[idx] = self.heap[idx], self.heap[parent_index]
+                idx = parent_index
+            else:
+                return
 
-    index = size + 1
-    heap.append(key)
-    sift_up(heap, index)
+        return
 
+    def sift_down(self, idx):
+        """
+        Просеивание вниз
+        :param idx: индекс 'просеиваемого' элемента
+        """
+        while True:
+            left = 2 * idx
+            right = 2 * idx + 1
 
-def heap_get_max_priority(heap):
-    size = len(heap) - 1
+            if self.size < left:
+                return
 
-    result = heap[1]
-    heap[1] = heap[size]
-    heap = heap[:-1]
-    # heap.size -= 1
-    sift_down(heap, 1)
-    return heap, result
+            if (right <= self.size) and self.compare(self.heap[right], self.heap[left]):
+                index_largest = right
+            else:
+                index_largest = left
 
+            if self.compare(self.heap[index_largest], self.heap[idx]):
+                self.heap[idx], self.heap[index_largest] = self.heap[index_largest], self.heap[idx]
+                idx = index_largest
+            else:
+                return
 
+    def get_max_priority(self):
+        """
+        Изымает из кучи максимальный элемент и восстанавливает кучу
+        :return: Возвращает максимальный элемент кучи
+        """
+        max_priority = self.heap[1]
+        self.heap[1] = self.heap[self.size]
 
-def heapsort(array):
-#   # Создадим пустую бинарную кучу.
-    heap = [-1, ]
-#
-#   # Вставим в неё по одному все элементы массива, сохраняя свойства кучи.
-#   для каждого элемента item из массива array:
-    for item in array:
-        heap_add(heap, item)   # псевдокод для heap_add можно посмотреть в прошлом уроке
-#
-#   # Будем извлекать из неё наиболее приоритетные элементы, удаляя их из кучи.
-    sorted_array = [0]*len(heap)
-    i = 0
-#   до тех пор, пока куча не пуста:
-    while len(heap) > 1:
-        heap, sorted_array[i] = heap_get_max_priority(heap)
+        self.size -= 1
+        self.sift_down(1)
+        return max_priority
 
-#     # псевдокод для heap_get_max_priority можно посмотреть в прошлом уроке
-        i += 1
+    def heapsort(self):
+        """
+        Рализует пирамидалную сортировку элементов кучи
+        :return: отсортированный массив элементов кучи
+        """
+        sorted_array = [0] * self.size
+        i = 0
+        while self.size > 0:
+            sorted_array[i] = self.get_max_priority()
+            i += 1
 
-    return sorted_array[:-1]
-
+        return sorted_array
 
 
 def main():
-    n = int(sys.stdin.readline().rstrip())
+    arraySize = int(sys.stdin.readline().rstrip())
 
     data = []
-    for _ in range(n):
+    for _ in range(arraySize):
         row = sys.stdin.readline().rstrip().split()
         data.append((row[0], int(row[1]), int(row[2])))
 
-    result = heapsort(data)
+    heap = Heap(data, comparator)
+    result = heap.heapsort()
 
     for name, *_ in result:
         print(name)
 
 
-
-
 def test():
-    #arr = [3, 5, 1, 6, 9, 2,  -3, 11, 26, 7]
-    arr= [
+    arr = [
         ('alla', 4, 100),
         ('gena', 6, 1000),
         ('gosha', 2, 90),
         ('rita', 2, 90),
-        ('timofey', 4, 80),]
-    d = heapsort(arr)
-    print(d)
+        ('timofey', 4, 80), ]
+
+    heap = Heap(arr, comparator)
+    result = heap.heapsort()
+
+    print(result)
 
 
 if __name__ == '__main__':
     main()
-    #test()
-
-
