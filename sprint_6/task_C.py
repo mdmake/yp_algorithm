@@ -1,7 +1,36 @@
 import sys
 
 
-def DFS(v, color, vertex: dict):  # v - номер вершины
+def DFS(start_vertex: int, color, vertex: dict):
+
+    stack = []
+    stack.append(start_vertex)
+
+    while len(stack) > 0:
+        # Получаем из стека очередную вершину.
+        # Это может быть как новая вершина, так и уже посещённая однажды.
+        v = stack.pop()
+        if color[v] == 'white':
+            print(v, end=' ')
+            # Красим вершину в серый. И сразу кладём её обратно в стек:
+            # это позволит алгоритму позднее вспомнить обратный путь по графу.
+            color[v] = 'gray'
+            stack.append(v)
+            # Теперь добавляем в стек все непосещённые соседние вершины,
+            # вместо вызова рекурсии
+            # для каждого исходящего ребра (v,w):
+            if v in vertex:
+                for w in sorted(vertex[v], reverse=True):
+                    # возьмём вершину w
+                    if color[w] == 'white':
+                        stack.append(w)
+        elif color[v] == 'gray':
+            # Серую вершину мы могли получить из стека только на обратном пути.
+            # Следовательно, её следует перекрасить в чёрный.
+            color[v] = 'black'
+
+
+def DFS_REC(v, color, vertex: dict):  # v - номер вершины
     color[v] = 'gray'  # Вершина посещена, но ещё не обработана.
     # для каждого исходящего ребра (v,w):
     print(v, end=' ')
@@ -13,7 +42,7 @@ def DFS(v, color, vertex: dict):  # v - номер вершины
 
 
 def MainDFS(s, m, graph):
-    color = ['white'] * (m+1)
+    color = ['white'] * (m + 1)
 
     # для каждого i от 0 до |V| - 1:
 
@@ -39,7 +68,6 @@ def main():
             graph[j] = []
         graph[i].append(j)
         graph[j].append(i)
-
 
     for k in graph:
         graph[k] = sorted(graph[k])
