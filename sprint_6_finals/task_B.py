@@ -1,5 +1,5 @@
 """
-Номер посылки 66033291
+Номер посылки 66050325
 
 
 -- ПРИНЦИП РАБОТЫ --
@@ -12,7 +12,7 @@
 Тогда можно решить задачу методом обхода в глубину с покраской.
 
 Если при проверке смежных по исходящим дугам вершин очередная вершина окажется серой — цикл есть,
-то есть сущест вует пара городов, меду которыми есть дороги двух типов
+то есть существует пара городов, между которыми есть дороги двух типов
 
 
 -- ВРЕМЕННАЯ СЛОЖНОСТЬ --
@@ -24,8 +24,8 @@
 Нам необходимо хранить массив цветов -- O(V) дополнительной памяти
 """
 
-
 import sys
+from collections import defaultdict
 from typing import List, Dict
 
 WHITE = -1
@@ -63,12 +63,12 @@ def is_loop_DFS(start_vertex: int, color: List[int], graph: Dict[int, List[int]]
     return True
 
 
-def main_DFS(m: int, graph: Dict[int, List[int]]):
+def dfs(graph: Dict[int, List[int]], m: int):
     """
     Поиск петель во всех компонентах связанности
 
-    :param m: количество вершин
     :param graph: словарь, описывающий ребра графа
+    :param m: количество вершин
     :return:
     """
     color = [WHITE] * (m + 1)
@@ -77,10 +77,9 @@ def main_DFS(m: int, graph: Dict[int, List[int]]):
         if color[v] == WHITE:
             result = is_loop_DFS(v, color, graph)
             if not result:
-                print('NO')
-                return
+                return False
 
-    print("YES")
+    return True
 
 
 def main():
@@ -88,24 +87,20 @@ def main():
     n = int(sys.stdin.readline().rstrip())
 
     # словарь вершина - смежные вершины
-    graph = dict()
+    graph = defaultdict(list)
     for i in range(1, n):
 
         for j, rb in enumerate(list(sys.stdin.readline().rstrip())):
             k = i + j + 1
             if rb == 'R':
-                if i in graph:
-                    graph[i].append(k)
-                else:
-                    graph[i] = [k, ]
-
+                graph[i].append(k)
             else:
-                if k in graph:
-                    graph[k].append(i)
-                else:
-                    graph[k] = [i, ]
+                graph[k].append(i)
 
-    main_DFS(n, graph)
+    if dfs(graph, n):
+        print('YES')
+    else:
+        print('NO')
 
 
 if __name__ == '__main__':

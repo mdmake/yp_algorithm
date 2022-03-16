@@ -1,5 +1,5 @@
 """
-Номер посылки 66031278
+Номер посылки 66050312
 
 
 -- ПРИНЦИП РАБОТЫ --
@@ -41,27 +41,27 @@ class Graph:
         инициализация
 
         :param vertex_count: количетсво вершин в графе
-        :param init_vertex: вершина, с которой начнем поиск максимального остовного дерева
+        :param init_vertex: вершина, с которой начнем поиск минимального остовного дерева
         """
 
+        self.vertex_count = vertex_count
         self.added = set()  # Множество вершин, уже добавленных в остов.
-        self.not_added = set(range(1, vertex_count + 1))  # Множество вершины, ещё не добавленных в остов.
+        self.not_added = [1]*(vertex_count+1)  # Множество вершины, ещё не добавленных в остов.
         self.edges = list()  # Массив рёбер, исходящих из остовного дерева.
         self.all_edges = defaultdict(list)
         self.init_vertex = init_vertex
 
-    def add_edge_with_invert_weight(self, i: int, j: int, weight: int):
+    def add_edge(self, i: int, j: int, weight: int):
         """
-        Добавление неориентированного ребра графа, вес ребра берется с противоположным знаком,
-        для решения нахождения максимального остовного дерева вмест минимального, не меняя основной алгоритм
+        Добавление неориентированного ребра графа
 
         :param i: первая вершина
         :param j: вторая вершина
         :param weight: вес ребра
         """
         if i != j:
-            self.all_edges[i].append((j, -weight))
-            self.all_edges[j].append((i, -weight))
+            self.all_edges[i].append((j, weight))
+            self.all_edges[j].append((i, weight))
 
     def add_vertex(self, v):
         """
@@ -70,10 +70,10 @@ class Graph:
         :param v: номер вершины
         """
         self.added.add(v)
-        self.not_added.remove(v)
+        self.not_added[v] = 0
 
         for (end, weight) in self.all_edges.get(v, []):
-            if end in self.not_added:
+            if self.not_added[end] != 0:
                 heapq.heappush(self.edges, (weight, (v, end)))
 
     def find_min_spanning_tree_weight(self) -> int:
@@ -86,14 +86,14 @@ class Graph:
 
         self.add_vertex(self.init_vertex)
 
-        while len(self.not_added) > 0 and len(self.edges) > 0:
+        while len(self.added) < self.vertex_count and len(self.edges) > 0:
             weight, (_, end) = heapq.heappop(self.edges)
 
-            if end in self.not_added:
+            if self.not_added[end] > 0:
                 sum_weight += weight
                 self.add_vertex(end)
 
-        if len(self.not_added) > 0:
+        if len(self.added) < self.vertex_count:
             raise Exception('Oops! I did it again')
 
         return sum_weight
@@ -106,7 +106,10 @@ def main():
     graph = Graph(n)
 
     for _ in range(m):
-        graph.add_edge_with_invert_weight(*map(int, sys.stdin.readline().rstrip().split()))
+        i, j, w = map(int, sys.stdin.readline().rstrip().split())
+
+        # чтобы найти макимаьное остовное дерево, добавляем вес ребра с отрицательным знаком
+        graph.add_edge(i, j, -w)
 
     try:
         max_spanning_tree_weight = graph.find_min_spanning_tree_weight()
