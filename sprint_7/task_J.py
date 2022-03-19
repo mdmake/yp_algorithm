@@ -1,4 +1,5 @@
 # https://www.youtube.com/watch?v=t2DpD9GnhfU
+# https://e-maxx.ru/algo/longest_increasing_subseq_log
 
 import sys
 
