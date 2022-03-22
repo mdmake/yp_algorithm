@@ -1,8 +1,60 @@
+"""
+Номер посылки 66308513
+
+
+-- ПРИНЦИП РАБОТЫ --
+Мы решаем задачу разбиения группы чисел объемом N на две подгруппы с одинаковой суммой.
+Пусть сумма всех чисел групп равна 2M. Тогда, задачу можно свести к задаче заполнения рюкзака
+объемом M в формулировке: 'можно ли заполнить данными числами рюкзак объема M полностью'
+
+Если же сумма всех чисел группы нечетна -- решения нет.
+
+Но этот алгоритм не проходит по времени, поэтому я воспользовался задачей деления множества на k-равных сумм
+https://ru.wikipedia.org/wiki/Задача_разбиения_множества_чисел
+
+В общем случае используем массив bool N*M и заполняем его по следующему алгоритму:
+dp(i, j) принимает значение True, если среди {n1, ..., nj } существует такое подмножество,
+ элементы которого в сумме дают i и False в противном случае.
+ То есть:
+    dp(i, j) принимает значение True, если либо p(i, j − 1) принимает значение True, либо p(i − xj, j − 1) принимает значение True
+    dp(i, j) принимает значение False в противном случае
+
+Так как нам нужны только значения dp на предыдущем шаге, то мы могли бы обойтись двумя строками матрицы dp.
+Но на самом так как для dp[i,j] нам необходимы только значения лежащие в предыдущей строке левее, нам достаточно
+одной строки матрицы, при условии расчета с конца строки.
+
+-- ВРЕМЕННАЯ СЛОЖНОСТЬ --
+Как и в задаче о рюкзаке итоговая сложность O(M*N),
+
+
+-- ПРОСТРАНСТВЕННАЯ СЛОЖНОСТЬ
+Нам необходим массив размерностью M/2, -- соответственно O(M) дополнительной памяти
+"""
+
 import sys
+from typing import List
+
+
+def is_backpack_full(weight: List[int], volume: int) -> bool:
+    """
+    Проверяет что в множестве weight есть подмножество заполняющее
+    объем volume целиком
+
+    :param weight: массив весов
+    :param volume: объем рюкзакак
+    :return: True, если можно заполнить рюкзак целиком, False а противном случае
+    """
+    dp = [False] * (volume + 1)
+
+    for i in range(len(weight)):
+        for j in range(volume, weight[i] - 1, -1):
+            if dp[j - weight[i]] or (weight[i] == j):
+                dp[j] = True
+
+    return dp[-1]
 
 
 def main():
-
     n = int(sys.stdin.readline().rstrip())
 
     weight = sorted((map(int, sys.stdin.readline().rstrip().split())))
@@ -11,27 +63,12 @@ def main():
 
     if s % 2 != 0 or n < 2:
         print(False)
-        return
     else:
-        M = s//2
 
+        M = s // 2
 
-    dp = [False] * (M + 1)
-
-    # https: // www.youtube.com / watch?v = T4bY72lCQac & list = PLqM7alHXFySGMu2CSdW_6d2u1o6WFTIO -
-    # https://www.geeksforgeeks.org/0-1-knapsack-problem-dp-10/
-    for i in range(n):
-        for j in range(M, weight[i]-1, -1):
-            # if j - weight[i] >= 0:
-            #     dp[j] = max(dp[j], weight[i] + dp[j - weight[i]])
-            if dp[j - weight[i]] or (weight[i] == j):
-                dp[j] = True
-
-    print(dp[-1])
-    # if dp[-1] == M:
-    #     print(True)
-    # else:
-    #     print(False)
+        result = is_backpack_full(weight, M)
+        print(result)
 
 
 if __name__ == '__main__':
