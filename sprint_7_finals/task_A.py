@@ -1,5 +1,5 @@
 """
-Номер посылки 66306485
+Номер посылки 66370215
 
 
 -- ПРИНЦИП РАБОТЫ --
@@ -24,7 +24,6 @@ https://ru.wikipedia.org/wiki/Расстояние_Левенштейна
 """
 
 import sys
-from copy import copy
 
 
 def levenshtein(s1: str, s2: str) -> int:
@@ -39,26 +38,26 @@ def levenshtein(s1: str, s2: str) -> int:
     m = len(s1) + 1
     n = len(s2) + 1
 
-    dp = [[0] * n for _ in range(2)]
+    dprev, dnext = [[0] * n for _ in range(2)]
 
     for j in range(1, n):
-        dp[0][j] = dp[0][j - 1] + 1
+        dprev[j] = dprev[j - 1] + 1
 
     for i in range(1, m):
 
-        dp[1][0] = dp[0][0] + 1
+        dnext[0] = dprev[0] + 1
         for j in range(1, n):
 
             if s1[i - 1] != s2[j - 1]:
-                dp[1][j] = dp[0][j - 1] + 1
+                dnext[j] = dprev[j - 1] + 1
             else:
-                dp[1][j] = dp[0][j - 1]
+                dnext[j] = dprev[j - 1]
 
-            dp[1][j] = min(dp[0][j] + 1, dp[1][j - 1] + 1, dp[1][j])
+            dnext[j] = min(dprev[j] + 1, dnext[j - 1] + 1, dnext[j])
 
-        dp[0] = copy(dp[1])
+        dnext, dprev = dprev, dnext
 
-    return dp[1][-1]
+    return dprev[-1]
 
 
 def main():
