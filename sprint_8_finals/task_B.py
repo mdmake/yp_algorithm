@@ -15,6 +15,7 @@ class Node:
         self.letter = letter
         self.is_final = False
         self.edge = defaultdict(dict)
+        self.word = None
 
 
 def add_pattern_to_tree(tree, string: str):
@@ -33,12 +34,15 @@ def add_pattern_to_tree(tree, string: str):
             current_node = tree.nd[current_node.edge[symbol]]
 
         current_node.is_final = True
+        current_node.word = string
 
         # Сдвинуться на следующий символ.
     return tree
 
-def find_any(tree, text, patterns):
-    #построить префиксное дерево trie по набору шаблонов patterns
+
+def find_any(tree, text):
+    # построить префиксное дерево trie по набору шаблонов patterns
+    finding = []
     for pos in range(0, len(text)):  # Перебираем стартовые позиции.
         # Начинаем с корня бора.
         current_node = tree.root
@@ -52,8 +56,9 @@ def find_any(tree, text, patterns):
                 # Сдвинуться на следующий символ.
                 current_node = tree.nd[current_node.edge[symbol]]
                 if current_node.is_final:
-                    # TODO!! -- нужны все
-                    return pos
+                    # return pos, current_node.word
+                    finding.append((pos, current_node.word))
+                    mismatch_not_found = False
 
                 offset += 1
 
@@ -65,8 +70,7 @@ def find_any(tree, text, patterns):
                 mismatch_not_found = False
     # Ни на одной стартовой позиции мы не дошли до терминального узла,
     #   значит, шаблон не найден.
-    return -1
-
+    return finding
 
 
 def main():
@@ -78,6 +82,10 @@ def main():
     for _ in range(n):
         patterns.append(sys.stdin.readline().rstrip())
         add_pattern_to_tree(tree, patterns[-1])
+
+    pos_word = find_any(tree, s)
+
+    dp = [0] * len(s)
 
 
 if __name__ == '__main__':
