@@ -4,8 +4,13 @@ from collections import defaultdict
 
 class Tree:
     def __init__(self):
+        # указатель на корень
         self.root = Node(0, '')
+
+        # количество нодов
         self.maxn = 1
+
+        # хеш с нодами по номеру
         self.nd = {0: self.root, }
 
 
@@ -33,10 +38,8 @@ def add_pattern_to_tree(tree, string: str):
         else:
             current_node = tree.nd[current_node.edge[symbol]]
 
-        current_node.is_final = True
-        current_node.word = string
-
-        # Сдвинуться на следующий символ.
+    current_node.word = string
+    current_node.is_final = True
     return tree
 
 
@@ -83,9 +86,27 @@ def main():
         patterns.append(sys.stdin.readline().rstrip())
         add_pattern_to_tree(tree, patterns[-1])
 
-    pos_word = find_any(tree, s)
+    # pos_word = find_any(tree, s)
+    # print(pos_word)
+    dp = [False] * (len(s) + 1)
+    dp[0] = True
 
-    dp = [0] * len(s)
+    node = tree.root
+    for i in range(len(dp)):
+        offset = 0
+        while i + offset < len(dp):
+            if node.is_final and dp[i + offset - len(node.word)]:
+                dp[i + offset] = True
+            if (i + offset == len(s) or not node.edge.get(s[i + offset], False)):
+                node = tree.root
+                break
+            node = tree.nd[node.edge[s[i + offset]]]
+            offset += 1
+
+    if dp[-1]:
+        print('YES')
+    else:
+        print('NO')
 
 
 if __name__ == '__main__':
