@@ -1,72 +1,68 @@
 """
-Номер посылки 66483466
+Номер посылки 66577520
 
 
 -- ПРИНЦИП РАБОТЫ --
 Я реализовал расчет поиск максимального общего префикса у n строк
-Строки поступают в запакованном виде, необходимо их распаковать, отсортировать,
-и найти общий префикс у максимальной и минимальной строк.
+Строки поступают в запакованном виде, необходимо их распаковать, найти минимальный и максимальный элемент,
+и найти у них общий префикс.
 
 
 -- ВРЕМЕННАЯ СЛОЖНОСТЬ --
 Распаковка требует от нас пройтись по каждому элементу строки и обработать его - O(n)
-Встроенная сортировка Python -- timesort -- O(n log n)
+Нахождение максимальной и мимнималоьной строки -- 2*O(n)
 Посимвольное сравнение двух массивов занимает O(k), где k -- длина наименьшей строки
-Итого O(n log n + k + n) ~ O(n log n)
+Итого 2O(2*n + k + n) ~ O(n)
 
 
 -- ПРОСТРАНСТВЕННАЯ СЛОЖНОСТЬ
-Алгоритму timesort требуется O(n) дополнительного места
+Алгоритму требуется дополнительная память для хранения максимальной и минимальной строк -- O(1)
 """
 
 import sys
-from typing import List, Tuple
 
 
-def unpack(s: str, i: int) -> Tuple[str, int]:
+def unpack(s: str) -> str:
     """
-    Производит распаковку текущего уровня вложенности рекурсивно заданной строки вида 3[a]2[r2[t]]
+    Производит распаковку рекурсивно заданной строки вида 3[a]2[r2[t]]
 
     :param s: запакованная строка
-    :param i: номер символа строки, с которого мы ее обрабатываем
-    :return: распакованную часть строки и позицию, на которой заканчивается уровень вложенности
+    :return: распакованную строку
     """
-    rez = ''
 
-    while i < len(s):
+    multiplyer = []
+    characters = []
+    result = []
+    for char in s:
+        if char.isdigit():
+            multiplyer.append(int(char))
+        elif char == '[':
+            characters.append([])
+        elif char == ']':
+            intermediate = ''.join(characters.pop()) * multiplyer.pop()
+            if len(characters) > 0:
+                characters[-1].append(intermediate)
+            else:
+                result.append(intermediate)
+        elif len(characters) == 0:
+            result.append(char)
+        else:
+            characters[-1].append(char)
 
-        if s[i].isalpha():
-            rez += s[i]
-        elif s[i].isdigit():
-            m = int(s[i])
-            r, i = unpack(s, i + 1)
-            rez += m * r
-        elif s[i] == '[':
-            pass
-        elif s[i] == ']':
-            return rez, i,
-
-        i += 1
-
-    return rez, i
+    return ''.join(result)
 
 
-def find_common_prefix(strings: List[str]) -> str:
+def find_common_prefix(s1: str, s2: str) -> str:
     """
-    Ищет наибольший общий префикс у массива строк
+    Ищет наибольший общий префикс у двух строк
 
-    :param strings: массив строк
+    :param s1: первая строка
+    :param s2: вторая строка
     :return: префикс
     """
-    if len(strings) < 1:
-        return ''
-    elif len(strings) == 1:
-        return strings[0]
-
-    strings.sort()
 
     prefix = ''
-    for s1, s2 in zip(strings[0], strings[-1]):
+    for s1, s2 in zip(s1, s2):
         if s1 == s2:
             prefix += s1
         else:
@@ -78,12 +74,22 @@ def find_common_prefix(strings: List[str]) -> str:
 def main():
     n = int(sys.stdin.readline().rstrip())
 
-    data = []
+    min_str = ''
+    max_str = ''
     for i in range(n):
-        s, _ = unpack(sys.stdin.readline().rstrip(), 0)
-        data.append(s)
+        s = unpack(sys.stdin.readline().rstrip())
+        if max_str == '':
+            max_str = s
+        if min_str == '':
+            min_str = s
 
-    result = find_common_prefix(data)
+        if s > max_str:
+            max_str = s
+
+        if s < min_str:
+            min_str = s
+
+    result = find_common_prefix(max_str, min_str)
 
     print(result)
 
