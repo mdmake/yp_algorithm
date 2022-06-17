@@ -32,7 +32,6 @@ def is_palyndrom(data: str) -> bool:
 
 
 def main():
-    _ = sys.stdin.readline()
     data = sys.stdin.readline().lower()
 
     print(is_palyndrom(data))
