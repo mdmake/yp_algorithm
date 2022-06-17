@@ -15,7 +15,7 @@ def main():
     data = sys.stdin.readline().rstrip().split()
     num = [int(item) for item in data]
 
-    return num[0] * num[1] ** 2 + num[2] * num[1] + num[3] * num[1]
+    return num[0] * (num[1] ** 2) + num[2] * num[1] + num[3]
 
 
 if __name__ == '__main__':
