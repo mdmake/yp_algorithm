@@ -1,78 +1,33 @@
 import sys
-def main(n, m, part1, part2, ):
-    if part1[-1] < part2[0]:
-        if (n + m) % 2 == 1:
-            mid = (n + m) // 2
 
-            if mid < n:
-                return part1[mid]
-            else:
-                return part2[mid - n]
+def findMedianSortedArrays(A, B):
 
+    total = len(A) + len(B)
+    half = total // 2
+
+    if len(B) < len(A):
+        A, B = B, A
+
+    l, r = 0, len(A) - 1
+
+    while True:
+        i = (l + r) // 2
+        j = half - i - 2  # отступ за индексацию с 0
+
+        Aleft = A[i] if i >= 0 else float('-inf')
+        Aright = A[i + 1] if (i + 1) < len(A) else float('inf')
+        Bleft = B[j] if j >= 0 else float('-inf')
+        Bright = B[j + 1] if (j + 1) < len(B) else float('inf')
+
+        if Aleft <= Bright and Bleft <= Aright:
+            if total % 2:
+                return min(Aright, Bright)
+            return (max(Aleft, Bleft) + min(Aright, Bright)) / 2
+
+        elif Aleft > Bright:
+            r = i - 1
         else:
-            mid1 = (n + m) // 2
-            mid2 = mid1 - 1
-
-            if mid1 < n:
-                v1 = part1[mid1]
-            else:
-                v1 = part2[mid1 - n]
-
-            if mid2 < n:
-                v2 = part1[mid2]
-            else:
-                v2 = part2[mid2 - n]
-            return (v1 + v2) / 2
-
-
-
-    else:
-        i, j = 0, 0
-        rezult = []
-        while i < n and j < m:
-
-            if part1[i] < part2[j]:
-                rezult.append(part1[i])
-
-                if (i + j) == (n + m) // 2:
-                    if (n + m) % 2 == 1:
-                        return rezult[-1]
-                    else:
-                        return (rezult[-1] + rezult[-2]) / 2
-
-                i += 1
-            else:
-                rezult.append(part2[j])
-
-                if (i + j) == (n + m) // 2:
-                    if (n + m) % 2 == 1:
-                        return rezult[-1]
-                    else:
-                        return (rezult[-1] + rezult[-2]) / 2
-
-                j += 1
-
-        while i < n:
-            rezult.append(part1[i])
-            if (i + j) == (n + m) // 2:
-                if (n + m) % 2 == 1:
-                    return rezult[-1]
-                else:
-                    return (rezult[-1] + rezult[-2]) / 2
-
-            i += 1
-
-        while j < m:
-            rezult.append(part2[j])
-
-            if (i + j) == (n + m) // 2:
-                if (n + m) % 2 == 1:
-                    return rezult[-1]
-                else:
-                    return (rezult[-1] + rezult[-2]) / 2
-            j += 1
-
-        return 0
+            l = i + 1
 
 
 if __name__ == "__main__":
@@ -81,9 +36,5 @@ if __name__ == "__main__":
     part1 = list(map(int, sys.stdin.readline().rstrip().split()))
     part2 = list(map(int, sys.stdin.readline().rstrip().split()))
 
-    #n = 8
-    #m = 10
-    #part1 = [0, 0, 0, 1, 3, 3, 5, 10]
-    #part2 = [4, 4, 5, 7, 7, 7, 8, 9, 9, 10]
-    r = main(n, m, part1, part2)
-    print(r)
+    print(findMedianSortedArrays(part1, part2))
+
